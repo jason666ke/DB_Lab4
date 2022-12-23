@@ -4,9 +4,8 @@ import feed.Feed;
 import user.User;
 
 import java.sql.*;
+import java.util.*;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
 public class DBUtils {
     // 连接
@@ -236,6 +235,57 @@ public class DBUtils {
             System.out.printf("feed record %s already exist!", feed.getFeedID());
         }
         statement.close();
+    }
+
+    /**
+     * 查询数据库中存在的所有用户信息
+     * @return 存放所有用户信息的List
+     * @throws SQLException
+     */
+    public static List<Tuple.Quartet<Integer, String, String, String>> getAllUserInfo() throws SQLException {
+        // 用户信息
+        List<Tuple.Quartet<Integer, String, String, String>> userList = new LinkedList<>();
+        String sql = "select * from user";
+        ResultSet set = null;
+        PreparedStatement pstmt;
+        // 查询数据库
+        try {
+            pstmt = con.prepareStatement(sql);
+            set = pstmt.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        // 获取列数
+        assert set != null;
+        ResultSetMetaData rsmd = set.getMetaData();
+        int colNum = rsmd.getColumnCount();
+        // 获取每一行数据
+        while (set.next()) {
+            int id = set.getInt(1);
+            String name = set.getString(2);
+            String account = set.getString(3);
+            String password = set.getString(4);
+            userList.add(new Tuple.Quartet<>(id, name, account, password));
+        }
+        return userList;
+    }
+
+    /**
+     * 判断当前账号是否存在并且密码输入正确
+     * @param account 用户账号
+     * @param password 用户密码
+     * @return 密码是否正确
+     * @throws SQLException 该账号不存在
+     */
+    public static boolean checkUserPassword(String account, String password) throws Exception {
+        List<Tuple.Quartet<Integer, String, String, String>> userList = getAllUserInfo();
+        for (Tuple.Quartet<Integer, String, String, String> user : userList) {
+            // 存在该账号则比对密码
+            if (account.equals(user.getLeftElement())) {
+                return password.equals(user.getRightElement());
+            }
+        }
+        throw new SQLException("当前用户不存在");
     }
 
     public static void main(String[] args) throws SQLException {
