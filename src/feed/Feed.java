@@ -1,19 +1,19 @@
 package feed;
 
+import data.Cat;
 import data.DBUtils;
 import data.FoodPreference;
 import data.Location;
-import jdk.jshell.execution.LoaderDelegate;
 import user.User;
 
 import java.sql.SQLException;
-import java.util.Date;
 
 public class Feed {
 
-    public Feed(User user, Date date, Location location, FoodPreference food) throws SQLException {
+    public Feed(User user, Cat cat, String date, Location location, FoodPreference food) throws SQLException {
         this.feedID = DBUtils.getNextPK("feed");
         this.user = user;
+        this.cat = cat;
         this.date = date;
         this.location = location;
         this.food = food;
@@ -21,9 +21,10 @@ public class Feed {
 
     private final int feedID;
     private final User user;
-    private final Date date;
+    private final String date;
     private final Location location;
     private final FoodPreference food;
+    private final Cat cat;
 
     public FoodPreference getFood() {
         return food;
@@ -33,7 +34,7 @@ public class Feed {
         return location;
     }
 
-    public Date getDate() {
+    public String getDate() {
         return date;
     }
 
@@ -43,5 +44,9 @@ public class Feed {
 
     public int getFeedID() {
         return feedID;
+    }
+
+    public Cat getCat() {
+        return cat;
     }
 }

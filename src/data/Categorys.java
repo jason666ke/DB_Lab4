@@ -28,4 +28,18 @@ public enum Categorys {
     public int getId() {
         return id;
     }
+
+    public static int getIdByName(String name) throws Exception {
+        for (Categorys category : Categorys.values()) {
+            if (name.equals(category.name)) return category.id;
+        }
+        throw new Exception("%s don't exist in %s".formatted(name, Categorys.class.getName()));
+    }
+
+    public static Categorys getInstanceByName(String name) throws Exception {
+        for (Categorys category : Categorys.values()) {
+            if (name.equals(category.name)) return category;
+        }
+        throw new Exception("%s don't exist in %s".formatted(name, Categorys.class.getName()));
+    }
 }

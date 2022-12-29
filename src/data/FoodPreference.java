@@ -6,7 +6,7 @@ public enum FoodPreference {
     meat("肉类", "它最喜欢吃的还是肉类，鱼肉就是它最喜欢吃的"),
     smallDriedFish("小鱼干", "宠主们让猫咪吃小鱼干的时候一定要注意，不要让它吃的太多");
 
-    private int id;
+    private final int id;
     private final String name;
     private final String description;
 
@@ -32,5 +32,19 @@ public enum FoodPreference {
 
     public int getId() {
         return id;
+    }
+
+    public static int getIdByName(String name) throws Exception {
+        for (FoodPreference food : FoodPreference.values()) {
+            if (name.equals(food.name)) return food.id;
+        }
+        throw new Exception("%s don't exist in %s".formatted(name, FoodPreference.class.getName()));
+    }
+
+    public static FoodPreference getInstanceByName(String name) throws Exception {
+        for (FoodPreference foodPreference : FoodPreference.values()) {
+            if (name.equals(foodPreference.name)) return foodPreference;
+        }
+        throw new Exception("%s don't exist in %s".formatted(name, FoodPreference.class.getName()));
     }
 }

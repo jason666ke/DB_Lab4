@@ -1,14 +1,16 @@
 package UI;
 
 import data.DBUtils;
+import user.User;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CatInfo extends JFrame{
-
 
     private JLabel title;
     private JPanel topPanel;
@@ -18,6 +20,7 @@ public class CatInfo extends JFrame{
     private DefaultTableModel tableModel;
     private JButton locationButton;
     private JButton feedButton;
+    private JButton addButton;
     private final Connection conn = DBUtils.connectDB();
     private PreparedStatement pstmt;
     private ResultSet set = null;
@@ -53,11 +56,15 @@ public class CatInfo extends JFrame{
         Box bottomBox = Box.createHorizontalBox();
         feedButton = new JButton("投喂登记");
         locationButton = new JButton("位置打卡");
+        addButton = new JButton("新增猫咪");
+
         // 填充水平空间
         bottomBox.add(Box.createHorizontalGlue());
         bottomBox.add(feedButton);
         bottomBox.add(Box.createHorizontalGlue());
         bottomBox.add(locationButton);
+        bottomBox.add(Box.createHorizontalGlue());
+        bottomBox.add(addButton);
         bottomBox.add(Box.createHorizontalGlue());
 
         /*
@@ -81,12 +88,36 @@ public class CatInfo extends JFrame{
         this.setContentPane(vbox);
         this.pack();
         this.setVisible(true);
+
+        addButton.addActionListener(actionEvent -> {
+            try {
+                jumpToAddNewCat();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+
+        feedButton.addActionListener(actionEvent -> {
+            try {
+                jumpToFeed();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+
+        locationButton.addActionListener(actionEvent -> {
+            try {
+                jumpToLocationRecord();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     private void selectCatInfo() throws SQLException {
         // 从catInfo表中查询猫咪信息（用color做测试）
         // TODO: 2022/12/22 记得将color信息改为一个view视图
-        String sql = "select * from color";
+        String sql = "select * from catinfo";
         // 执行查询语句
         try {
             assert conn != null;
@@ -115,6 +146,22 @@ public class CatInfo extends JFrame{
         }
         // 关闭连接
         set.close();
+    }
+
+
+    public void jumpToAddNewCat() throws SQLException {
+        this.dispose();
+        new AddNewCat();
+    }
+
+    public void jumpToFeed() throws SQLException {
+        this.dispose();
+        new Feed();
+    }
+
+    public void jumpToLocationRecord() throws SQLException {
+        this.dispose();
+        new LocationRecord();
     }
 
     public static void main(String[] args) {

@@ -23,4 +23,18 @@ public enum Colors {
     public int getId() {
         return id;
     }
+
+    public static int getIdByName(String name) throws Exception {
+        for (Colors color : Colors.values()) {
+            if (name.equals(color.name)) return color.id;
+        }
+        throw new Exception("%s don't exist in %s".formatted(name, Colors.class.getName()));
+    }
+
+    public static Colors getInstanceByName(String name) throws Exception {
+        for (Colors color : Colors.values()) {
+            if (name.equals(color.name)) return color;
+        }
+        throw new Exception("%s don't exist in %s".formatted(name, Colors.class.getName()));
+    }
 }

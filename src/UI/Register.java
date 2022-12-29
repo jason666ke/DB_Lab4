@@ -1,6 +1,7 @@
 package UI;
 
 import data.DBUtils;
+import data.Tuple;
 import user.User;
 
 import javax.swing.*;
@@ -8,6 +9,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
+import java.util.List;
 
 public class Register extends JFrame {
     private JLabel registerTitle;
@@ -25,6 +27,8 @@ public class Register extends JFrame {
 
     // 用户登录标记变量
     private boolean userLogUp = false;
+    // 当前登录用户
+    private static User curUser = null;
 
     public Register() {
         // 设置页面大小
@@ -101,10 +105,14 @@ public class Register extends JFrame {
                 e.printStackTrace();
             }
             if (userLogUp) {
-                jumpToCatInfo();
+                try {
+                    jumpToCatInfo();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             } else {
                 JOptionPane.showConfirmDialog(null,
-                        "不注册账号将无法使用该程序",
+                        "密码错误请重新输入",
                         "警告",
                         JOptionPane.YES_NO_OPTION,
                         JOptionPane.WARNING_MESSAGE);
@@ -122,7 +130,7 @@ public class Register extends JFrame {
         // 查询数据库中是否有此用户存在
         boolean isExist;
         try {
-            isExist = DBUtils.checkUserPassword(account, password);
+            DBUtils.checkUserPassword(account, password);
         } catch (Exception e) {
             // 提示用户需要先注册账号再登录
             int userOption = JOptionPane.showConfirmDialog(null,
@@ -157,12 +165,24 @@ public class Register extends JFrame {
     /**
      * 页面跳转函数
      */
-    private void jumpToCatInfo() {
+    private void jumpToCatInfo() throws SQLException {
         this.dispose();
+        String account = accountField.getText();
+        List<Tuple.Quartet<Integer, String, String, String>> userList = DBUtils.getAllUserInfo();
+        for (Tuple.Quartet<Integer, String, String, String> user : userList) {
+            // 找到该用户对应的账号
+            if (account.equals(user.getLeftElement())) {
+                curUser = new User(user.getId(), user.getName(), user.getLeftElement(), user.getRightElement());
+            }
+        }
         new CatInfo();
     }
 
     public static void main(String[] args) {
         new Register();
+    }
+
+    public static User getCurUser() {
+        return curUser;
     }
 }

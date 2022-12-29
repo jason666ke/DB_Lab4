@@ -13,12 +13,27 @@ public class User {
         this.password = password;
     }
 
+    /**
+     * 用于记录当前登录的用户所使用
+     * @param id 数据库中存放的id
+     * @param name 用户姓名
+     * @param account 用户账号
+     * @param password 用户密码
+     * @throws SQLException sql错误
+     */
+    public User(int id, String name, String account, String password) throws SQLException {
+        this.userID = id;
+        this.name = name;
+        this.account = account;
+        this.password = password;
+    }
+
     public void setUser(String name, String account, String password) throws SQLException {
         User user = new User(name, account, password);
         DBUtils.insertUser(user);
     }
 
-    private int userID;
+    private final int userID;
     private String name;
     private String account;
     private String password;

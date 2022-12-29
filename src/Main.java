@@ -1,8 +1,10 @@
+import UI.Register;
+
 public class Main {
 
 
     public static void main(String[] args) {
-        System.out.println("书I个");
+        new Register();
     }
 
 

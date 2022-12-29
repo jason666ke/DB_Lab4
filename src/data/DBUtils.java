@@ -4,13 +4,18 @@ import feed.Feed;
 import user.User;
 
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.Date;
 
 public class DBUtils {
     // 连接
     private static Connection con = connectDB();
-
+    // 执行
+    private static PreparedStatement pstmt;
+    // 结果
+    private static ResultSet set;
     /**
      * 连接数据库
      */
@@ -43,7 +48,7 @@ public class DBUtils {
 
     /**
      * 查询指定表的主键列的长度并返回下一主键值
-     * @throws SQLException
+     * @throws SQLException sql错误
      * @return PK length
      */
     public static int getNextPK(String tableName) throws SQLException {
@@ -58,7 +63,7 @@ public class DBUtils {
 
     /**
      * 向color表中插入数据
-     * @throws SQLException
+     * @throws SQLException sql 错误
      */
     public static void insertColor(Colors color) throws SQLException {
         Statement statement = con.createStatement();
@@ -79,7 +84,7 @@ public class DBUtils {
 
     /**
      * 向category表中插入数据
-     * @throws SQLException
+     * @throws SQLException sql错误
      */
     public static void insertCategory(Categorys category) throws SQLException {
         Statement statement = con.createStatement();
@@ -106,7 +111,7 @@ public class DBUtils {
     /**
      * 向feature表中插入元素
      * @param feature 猫的特征
-     * @throws SQLException
+     * @throws SQLException sql错误
      */
     public static void insertFeature(Features feature) throws SQLException {
         Statement statement = con.createStatement();
@@ -133,8 +138,8 @@ public class DBUtils {
 
     /**
      * 向food_preference表中插入数据
-     * @param foodPreference
-     * @throws SQLException
+     * @param foodPreference 食物偏好
+     * @throws SQLException sql错误
      */
     public static void insertFoodPreference(FoodPreference foodPreference) throws SQLException {
         Statement statement = con.createStatement();
@@ -161,7 +166,7 @@ public class DBUtils {
     /**
      * 向user表中插入信息
      * @param user 用户信息
-     * @throws SQLException
+     * @throws SQLException sql错误
      */
     public static void insertUser(User user) throws SQLException {
         Statement statement = con.createStatement();
@@ -189,7 +194,7 @@ public class DBUtils {
     /**
      * 向location表中插入信息
      * @param location 猫常出现的位置
-     * @throws SQLException
+     * @throws SQLException sql错误
      */
     public static void insertLocation(Location location) throws SQLException {
         Statement statement = con.createStatement();
@@ -218,21 +223,59 @@ public class DBUtils {
      * @param foodPreference 喂养食物
      * @throws SQLException sql错误
      */
-    public static void insertFeed(User user, Date date, Location location, FoodPreference foodPreference) throws SQLException {
+    public static void insertFeed(User user, Cat cat, String date, Location location, FoodPreference foodPreference) throws SQLException {
         Statement statement = con.createStatement();
-        Feed feed = new Feed(user, date, location, foodPreference);
+        Feed feed = new Feed(user, cat, date, location, foodPreference);
         // 构造sql语句
         String feedInfo =
                 "("
-                        + feed.getFeedID() + feed.getUser().getName() + date
-                        + location.getName() + foodPreference.getName() +
+                        + feed.getFeedID() + ","
+                        + cat.getId() + ","
+                        + user.getUserID() + ","
+                        + "\"" + date + "\"" + ","
+                        + "\"" + location.getName() + "\"" + ","
+                        + "\"" + foodPreference.getName() + "\"" +
                 ")";
-        String sql = "insert into location values%s".formatted(feedInfo);
+        String sql = "insert into feed values%s".formatted(feedInfo);
         System.out.println(sql);
         try {
             statement.execute(sql);
         } catch (SQLException e) {
             System.out.printf("feed record %s already exist!", feed.getFeedID());
+            e.printStackTrace();
+        }
+        statement.close();
+    }
+
+    /**
+     * 向cat表中插入数据
+     * @param name 猫咪名字
+     * @param category 猫咪种类
+     * @param color 猫咪颜色
+     * @param food 食物偏好
+     * @param feature 猫咪特征
+     * @param location 常见位置
+     * @throws Exception sql错误
+     */
+    public static void insertCat(String name, String category, String color, String food, String feature, String location) throws Exception {
+        Statement statement = con.createStatement();
+        Cat newCat = new Cat(name);
+        String catInfo =
+                "("
+                        + newCat.getId() + ","
+                        + Colors.getIdByName(color) + ","
+                        + FoodPreference.getIdByName(food) + ","
+                        + Categorys.getIdByName(category) + ","
+                        + Features.getIdByName(feature) + ","
+                        + Location.getIdByName(location) + ","
+                        + "\"" + newCat.getName() + "\""
+                        + ")";
+        String sql = "insert into cat values%s".formatted(catInfo);
+        System.out.println(sql);
+        try {
+            statement.execute(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         statement.close();
     }
@@ -240,7 +283,7 @@ public class DBUtils {
     /**
      * 查询数据库中存在的所有用户信息
      * @return 存放所有用户信息的List
-     * @throws SQLException
+     * @throws SQLException sql错误
      */
     public static List<Tuple.Quartet<Integer, String, String, String>> getAllUserInfo() throws SQLException {
         // 用户信息
@@ -285,7 +328,68 @@ public class DBUtils {
                 return password.equals(user.getRightElement());
             }
         }
-        throw new SQLException("当前用户不存在");
+        throw new SQLException("this user is not exist!");
+    }
+
+    public static List<List<String>> getAllInfoFromTable(String tableName) throws SQLException {
+        String sql = "select * from %s".formatted(tableName);
+        // 执行查询语句
+        try {
+            assert con != null;
+            pstmt = con.prepareStatement(sql);
+            set = pstmt.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        // 从表中获取的信息
+        List<List<String>> elementInfo = new LinkedList<>();
+        // 获取列数
+        assert set != null;
+        ResultSetMetaData rsmd = set.getMetaData();
+        int colNum = rsmd.getColumnCount();
+        // 获取每一行数据
+        int count;
+        List<String> eachElementInfo = new LinkedList<>();
+        while (set.next()) {
+            count = 0;
+            while (count <= colNum) {
+                count++;
+                // 读取完一整行后刷新
+                if (count == (colNum + 1)) {
+                    // 将获取的数据写入外层List
+                    elementInfo.add(eachElementInfo);
+                    // 更新内层List
+                    eachElementInfo = new LinkedList<>();
+                } else {
+                    // 数据写入
+                    eachElementInfo.add(set.getString(count));
+                }
+            }
+        }
+        return elementInfo;
+    }
+
+    /**
+     * 时间格式转换
+     * @param time 时间
+     * @return 符合标准格式的时间
+     */
+    public static LocalDateTime dateFormatTransform(String time) {
+        DateTimeFormatter formatter= DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        return LocalDateTime.parse(time, formatter);
+    }
+
+    public static void updateCatLocation(int Id, Location location) {
+        String sql = "update cat set location_id = %d where cat_id = %d".formatted(location.getId(), Id);
+        // 执行查询语句
+        try {
+            assert con != null;
+            pstmt = con.prepareStatement(sql);
+            System.out.println(sql);
+            pstmt.execute(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) throws SQLException {
