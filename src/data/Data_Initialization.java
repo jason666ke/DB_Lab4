@@ -5,37 +5,37 @@ import java.sql.SQLException;
 
 public class Data_Initialization {
 
-    public void setColor() throws SQLException {
+    public static void setColor() throws SQLException {
         for (Colors color : Colors.values()) {
             DBUtils.insertColor(color);
         }
     }
 
-    public void setFeature() throws SQLException {
+    public static void setFeature() throws SQLException {
         for (Features feature : Features.values()) {
             DBUtils.insertFeature(feature);
         }
     }
 
-    public void setCategory() throws SQLException {
+    public static void setCategory() throws SQLException {
         for (Categorys category : Categorys.values()) {
             DBUtils.insertCategory(category);
         }
     }
 
-    public void setFoodPreference() throws SQLException {
+    public static void setFoodPreference() throws SQLException {
         for (FoodPreference foodPreference : FoodPreference.values()) {
             DBUtils.insertFoodPreference(foodPreference);
         }
     }
 
-    public void setLocation() throws SQLException {
+    public static void setLocation() throws SQLException {
         for (Location location: Location.values()) {
             DBUtils.insertLocation(location);
         }
     }
 
-    public void dataInitial() throws SQLException {
+    public static void dataInitial() throws SQLException {
         setCategory();
         setColor();
         setFeature();
@@ -44,8 +44,7 @@ public class Data_Initialization {
     }
 
     public static void main(String[] args) throws SQLException {
-        Data_Initialization dataInitialization = new Data_Initialization();
-        dataInitialization.dataInitial();
+        dataInitial();
     }
 
 }

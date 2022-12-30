@@ -56,9 +56,13 @@ public class DBUtils {
         Statement ps = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
         //
         ResultSet rs = ps.executeQuery("select * from " + tableName);
-        rs.last();
+//        rs.last();
         System.out.println("row counts: " + rs.getRow());
-        return rs.getRow();
+        int nextPK = 0;
+        while (rs.next()) {
+            nextPK = rs.getInt(1) + 1;
+        }
+        return nextPK;
     }
 
     /**
@@ -131,7 +135,7 @@ public class DBUtils {
             statement.execute(sql);
         } catch (SQLException e) {
             System.out.printf("this %s already exist!", feature.getName());
-            e.printStackTrace();
+//            e.printStackTrace();
         }
         statement.close();
     }
@@ -394,5 +398,6 @@ public class DBUtils {
 
     public static void main(String[] args) throws SQLException {
         connectDB();
+        getNextPK("user");
     }
 }

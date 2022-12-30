@@ -32,10 +32,11 @@ public class Register extends JFrame {
 
     public Register() {
         // 设置页面大小
-//        this.setBounds(500, 400, 600, 700);
         this.setPreferredSize(new Dimension(400, 600));
         // 设置默认关闭方式
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        // 限定窗口位置
+        this.setLocationRelativeTo(null);
 
         /*
             topBox：放置页面标题

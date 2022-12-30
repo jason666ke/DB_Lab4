@@ -16,6 +16,8 @@ public class LocationRecord extends JFrame {
         this.setPreferredSize(new Dimension(400, 600));
         // 设置默认关闭方式
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        // 限定窗口位置
+        this.setLocationRelativeTo(null);
 
         /*
             标题box

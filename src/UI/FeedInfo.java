@@ -1,31 +1,22 @@
 package UI;
 
 import data.DBUtils;
-import user.User;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
 
-public class CatInfo extends JFrame{
+public class FeedInfo extends JFrame{
 
-    private JLabel title;
-    private JPanel topPanel;
-    private JPanel middlePanel;
-    private JPanel bottlePanel;
-    private JTable catInfoTable;
-    private DefaultTableModel tableModel;
-    private JButton locationButton;
-    private JButton feedButton;
-    private JButton addButton;
     private final Connection conn = DBUtils.connectDB();
     private PreparedStatement pstmt;
     private ResultSet set = null;
 
-    public CatInfo() {
+    private JTable feedInfoTable;
+    private DefaultTableModel tableModel;
+
+    FeedInfo() {
         // 设置页面大小
         this.setBounds(500, 400, 600, 400);
         // 设置默认关闭方式
@@ -37,6 +28,7 @@ public class CatInfo extends JFrame{
           第一个水平箱容器，放置页面标题
          */
         Box topBox = Box.createHorizontalBox();
+        JLabel title = new JLabel("投喂信息");
         title.setHorizontalAlignment(SwingConstants.CENTER);
         title.setFont(new Font("仿宋", Font.PLAIN, 30));
         topBox.add(title);
@@ -46,30 +38,19 @@ public class CatInfo extends JFrame{
          */
         Box middleBox = Box.createHorizontalBox();
         // 设置表格属性
-        catInfoTable = new JTable();
+        feedInfoTable = new JTable();
         tableModel = new DefaultTableModel();
-        catInfoTable.setModel(tableModel);
-        JScrollPane jsp = new JScrollPane(catInfoTable);
+        feedInfoTable.setModel(tableModel);
+        JScrollPane jsp = new JScrollPane(feedInfoTable);
         middleBox.add(jsp);
 
         /*
-            第三个水平箱容器，放置四个按钮，投喂信息，出现位置打卡，投喂登记，新增猫
+            第三个水平箱容器，放置返回按钮
          */
         Box bottomBox = Box.createHorizontalBox();
-        feedButton = new JButton("投喂登记");
-        locationButton = new JButton("位置打卡");
-        addButton = new JButton("新增猫咪");
-        JButton feedInfoButton = new JButton("投喂信息");
-
-        // 填充水平空间
+        JButton returnButton = new JButton("返回");
         bottomBox.add(Box.createHorizontalGlue());
-        bottomBox.add(feedButton);
-        bottomBox.add(Box.createHorizontalGlue());
-        bottomBox.add(feedInfoButton);
-        bottomBox.add(Box.createHorizontalGlue());
-        bottomBox.add(locationButton);
-        bottomBox.add(Box.createHorizontalGlue());
-        bottomBox.add(addButton);
+        bottomBox.add(returnButton);
         bottomBox.add(Box.createHorizontalGlue());
 
         /*
@@ -84,7 +65,7 @@ public class CatInfo extends JFrame{
             读取数据库数据
          */
         try {
-            selectCatInfo();
+            selectFeedInfo();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -94,37 +75,12 @@ public class CatInfo extends JFrame{
         this.pack();
         this.setVisible(true);
 
-        addButton.addActionListener(actionEvent -> {
-            try {
-                jumpToAddNewCat();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        });
-
-        feedButton.addActionListener(actionEvent -> {
-            try {
-                jumpToFeed();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        });
-
-        locationButton.addActionListener(actionEvent -> {
-            try {
-                jumpToLocationRecord();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        });
-
-        feedInfoButton.addActionListener(actionEvent -> jumpToFeedInfo());
+        returnButton.addActionListener(actionEvent -> jumpToHomePage());
     }
 
-    private void selectCatInfo() throws SQLException {
+    private void selectFeedInfo() throws SQLException {
         // 从catInfo表中查询猫咪信息（用color做测试）
-        // TODO: 2022/12/22 记得将color信息改为一个view视图
-        String sql = "select * from catinfo";
+        String sql = "select * from feedinfo";
         // 执行查询语句
         try {
             assert conn != null;
@@ -155,29 +111,8 @@ public class CatInfo extends JFrame{
         set.close();
     }
 
-
-    public void jumpToAddNewCat() throws SQLException {
+    public void jumpToHomePage() {
         this.dispose();
-        new AddNewCat();
-    }
-
-    public void jumpToFeed() throws SQLException {
-        this.dispose();
-        new Feed();
-    }
-
-    public void jumpToLocationRecord() throws SQLException {
-        this.dispose();
-        new LocationRecord();
-    }
-
-    public void jumpToFeedInfo() {
-        this.dispose();
-        new FeedInfo();
-    }
-
-    public static void main(String[] args) {
         new CatInfo();
     }
-
 }
